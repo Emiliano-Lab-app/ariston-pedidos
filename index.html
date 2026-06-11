@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ariston Pedidos">
+<meta name="theme-color" content="#185FA5">
+<title>Nota de Pedido - Laboratorio Ariston</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--blue:#185FA5;--blu2:#E6F1FB;--blu3:#0C447C;--green:#0F6E56;--grn2:#E1F5EE;--red:#A32D2D;--red2:#FCEBEB;--bdr:#D3D1C7;--t1:#2C2C2A;--t2:#5F5E5A;--t3:#888780;--bg:#fff;--bg2:#F8F7F4;--r:10px;--rs:6px}
+body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:var(--bg2);color:var(--t1);min-height:100vh}
+.topbar{background:var(--blue);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100}
+.tlogo{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.ttitle{font-size:15px;font-weight:600;flex:1}
+.tstep{font-size:12px;opacity:.75}
+.pbar{height:3px;background:rgba(255,255,255,.2)}
+.pfill{height:100%;background:#fff;transition:width .3s}
+.screen{display:none;min-height:calc(100vh - 58px);flex-direction:column}
+.screen.active{display:flex}
+.sbody{flex:1;padding:16px;overflow-y:auto}
+.sfoot{padding:12px 16px;background:var(--bg);border-top:1px solid var(--bdr);display:flex;flex-direction:column;gap:8px}
+.owrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:32px 24px;text-align:center}
+.oicon{width:72px;height:72px;border-radius:50%;background:var(--blu2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px}
+.otitle{font-size:20px;font-weight:600;margin-bottom:8px}
+.osub{font-size:14px;color:var(--t2);margin-bottom:28px;line-height:1.5}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1px solid var(--bdr);border-radius:var(--rs);font-size:15px;color:var(--t1);background:var(--bg);-webkit-appearance:none;font-family:inherit}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--blue)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.slbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;padding:10px 0 6px}
+.csw{position:relative;margin-bottom:8px}
+.csw input{width:100%;padding:11px 12px 11px 38px;border:1px solid var(--blue);border-radius:var(--r);font-size:15px;background:var(--bg);color:var(--t1);font-family:inherit}
+.csw input:focus{outline:none;border-color:var(--blu3)}
+.csicon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none}
+.cdd{background:var(--bg);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.citem{padding:12px 14px;border-bottom:1px solid var(--bdr);cursor:pointer;display:flex;align-items:center;gap:10px}
+.citem:last-child{border-bottom:none}
+.citem:active{background:var(--blu2)}
+.cavatar{width:36px;height:36px;border-radius:50%;background:var(--blu2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--blu3);flex-shrink:0}
+.cinfo{flex:1;min-width:0}
+.cnombre{font-size:14px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.csub{font-size:12px;color:var(--t3)}
+.cdel{padding:6px;color:var(--t3);cursor:pointer;font-size:16px;flex-shrink:0;background:none;border:none}
+.cnuevo{display:flex;align-items:center;gap:8px;padding:12px 14px;color:var(--blue);font-size:14px;font-weight:600;cursor:pointer;border-top:1px solid var(--bdr)}
+.cempty{padding:14px;text-align:center;font-size:13px;color:var(--t3)}
+.csel{background:var(--blu2);border:1px solid #B5D4F4;border-radius:var(--r);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.csel-info{flex:1}
+.csel-n{font-size:15px;font-weight:600;color:var(--blu3)}
+.csel-s{font-size:12px;color:var(--blue)}
+.csel-ch{font-size:12px;color:var(--blue);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;white-space:nowrap}
+.srchwrap{position:sticky;top:0;background:var(--bg2);padding:0 0 10px;z-index:10}
+.srchbox{position:relative}
+.srchbox input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--bdr);border-radius:var(--r);font-size:14px;background:var(--bg);font-family:inherit}
+.srchbox input:focus{outline:none;border-color:var(--blue)}
+.srchicon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:16px;pointer-events:none}
+.srchcnt{font-size:12px;color:var(--t3);text-align:right;margin-top:4px}
+.dhdr{font-size:13px;font-weight:600;color:var(--blu3);background:var(--blu2);padding:7px 12px;border-radius:var(--rs);margin:14px 0 6px}
+.pcard{background:var(--bg);border:1px solid var(--bdr);border-radius:var(--r);padding:12px;margin-bottom:8px}
+.pcard.on{border-color:var(--blue);background:var(--blu2)}
+.pname{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:3px}
+.pcod{display:inline-block;font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;background:#E6F1FB;color:var(--blu3);margin-bottom:8px}
+.pfields{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.pf label{display:block;font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;margin-bottom:3px;letter-spacing:.04em}
+.pf input{width:100%;padding:7px 6px;border:1px solid var(--bdr);border-radius:5px;font-size:14px;text-align:center;background:var(--bg);color:var(--t1);font-family:inherit}
+.pf input:focus{outline:none;border-color:var(--blue);background:#fff}
+.trow{display:flex;align-items:center;gap:6px;margin-top:8px}
+.trow label{font-size:12px;color:var(--t2)}
+.trow input[type=checkbox]{width:16px;height:16px;accent-color:var(--red)}
+.totsbar{background:var(--bg);border-top:1px solid var(--bdr);padding:8px 16px;display:flex}
+.tbox{flex:1;text-align:center;padding:6px 4px}
+.tbox:not(:last-child){border-right:1px solid var(--bdr)}
+.tlbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.tval{font-size:20px;font-weight:700;color:var(--t3)}
+.tval.on{color:var(--blue)}
+.tsub{font-size:10px;color:var(--t3);margin-top:1px}
+.rhdr{background:var(--bg);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.rrow{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--bdr)}
+.rrow:last-child{border-bottom:none}
+.rlbl{font-size:13px;color:var(--t2)}
+.rval{font-size:13px;font-weight:600;color:var(--t1);text-align:right;max-width:60%}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;background:var(--blu2);color:var(--blu3);margin:2px 2px 0 0}
+.totblk{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 16px;margin-bottom:12px}
+.totblk-t{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.totrow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bdr)}
+.totrow:last-child{border-bottom:none}
+.totlbl{font-size:14px;color:var(--t2)}
+.totval{font-size:18px;font-weight:700;color:var(--blue)}
+.scard{background:var(--bg);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
+.ssec{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;padding:7px 12px;background:var(--bg2);border-bottom:1px solid var(--bdr)}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--bdr)}
+.srow:last-child{border-bottom:none}
+.sleft{flex:1;min-width:0}
+.sname{font-size:13px;color:var(--t1)}
+.sext{font-size:11px;color:var(--t3);margin-top:2px}
+.sright{text-align:right;white-space:nowrap;margin-left:8px}
+.sqty{font-size:13px;font-weight:600;color:var(--t1)}
+.mprev{border:1px solid var(--bdr);border-radius:var(--r);padding:12px;background:var(--bg2);margin-top:12px}
+.mlbl{font-size:11px;color:var(--t3);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.mline{font-size:12px;color:var(--t2);margin-bottom:3px}
+.mline strong{color:var(--t1);font-weight:600}
+.mtbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;table-layout:fixed}
+.mtbl th{text-align:left;color:var(--t3);font-weight:600;padding:5px 6px;border-bottom:1px solid var(--bdr);font-size:11px;text-transform:uppercase}
+.mtbl td{padding:5px 6px;border-bottom:1px solid var(--bdr);color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mtbl tr:last-child td{border-bottom:none}
+.mcod{font-weight:700;color:var(--blue);width:70px}
+.mnum{width:34px;text-align:center}
+.swrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:32px 24px;text-align:center}
+.sicon{width:68px;height:68px;border-radius:50%;background:var(--grn2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px}
+.stitle{font-size:20px;font-weight:600;margin-bottom:6px}
+.ssub2{font-size:14px;color:var(--t2);margin-bottom:4px}
+.sdet{font-size:12px;color:var(--t3);margin-bottom:28px}
+.btn{width:100%;padding:13px;font-size:15px;font-weight:600;border-radius:var(--r);border:none;cursor:pointer;transition:opacity .15s}
+.btn:active{opacity:.8}
+.bp{background:var(--blue);color:#fff}
+.bs{background:transparent;color:var(--blue);border:1px solid var(--blue)}
+.vbar{background:var(--blu2);border-bottom:1px solid var(--bdr);padding:8px 16px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--blu3)}
+.vbar span{font-weight:600}
+.vedit{margin-left:auto;font-size:12px;color:var(--blue);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0}
+.nwarn{background:var(--red2);border:1px solid #F7C1C1;border-radius:var(--rs);padding:10px 12px;font-size:13px;color:var(--red);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tlogo">A</div>
+  <div class="ttitle">Nota de pedido</div>
+  <div class="tstep" id="tstep"></div>
+</div>
+<div class="pbar"><div class="pfill" id="pfill" style="width:0%"></div></div>
+
+<!-- SC0: ONBOARDING -->
+<div class="screen active" id="sc0">
+  <div class="owrap">
+    <div class="oicon">&#128075;</div>
+    <div class="otitle">Bienvenido</div>
+    <div class="osub">Ingres&#225; tu nombre una sola vez<br>y quedamos listos.</div>
+    <div class="field" style="width:100%;max-width:320px">
+      <label>Tu nombre</label>
+      <input type="text" id="inp-vend" placeholder="Ej: Juan P&#233;rez" autocomplete="name">
+    </div>
+    <button class="btn bp" style="max-width:320px;margin-top:8px" id="btn-onboard">Continuar &#8594;</button>
+  </div>
+</div>
+
+<!-- SC1: CLIENTE -->
+<div class="screen" id="sc1">
+  <div id="vb1" class="vbar" style="display:none">Vendedor: <span id="vn1"></span><button class="vedit" id="vedit1">cambiar</button></div>
+  <div class="sbody">
+    <div class="slbl" style="padding-top:0">Cliente</div>
+    <div class="csw">
+      <span class="csicon">&#127970;</span>
+      <input type="text" id="cli-inp" placeholder="Buscar cliente o escribir nuevo..." autocomplete="off">
+    </div>
+    <div id="cli-dd" class="cdd" style="display:none"></div>
+    <div id="cli-sel" style="display:none"></div>
+    <div class="field"><label>Raz&#243;n social</label><input type="text" id="f-cli" placeholder="Nombre del cliente"></div>
+    <div class="row2">
+      <div class="field"><label>CUIT</label><input type="text" id="f-cuit" placeholder="XX-XXXXXXXX-X" inputmode="numeric"></div>
+      <div class="field"><label>N&#186; cliente</label><input type="text" id="f-nro"></div>
+    </div>
+    <div class="field"><label>Domicilio de entrega</label><input type="text" id="f-dom" placeholder="Calle y n&#250;mero"></div>
+    <div class="row2">
+      <div class="field"><label>Localidad</label><input type="text" id="f-loc" placeholder="CABA"></div>
+      <div class="field"><label>Provincia</label><input type="text" id="f-prov" placeholder="Buenos Aires"></div>
+    </div>
+    <div class="field"><label>Mail cliente (opcional)</label><input type="email" id="f-mail" placeholder="mail@cliente.com" inputmode="email"></div>
+    <div class="slbl">Condiciones</div>
+    <div class="field"><label>Condici&#243;n de pago</label>
+      <select id="f-pago">
+        <option value="30 dias">30 d&#237;as</option>
+        <option value="Contado">Contado</option>
+        <option value="Consignacion">Consignaci&#243;n</option>
+        <option value="Otros">Otros</option>
+      </select>
+    </div>
+    <div class="field"><label>Condici&#243;n de venta</label>
+      <select id="f-vta">
+        <option value="Normal">Normal</option>
+        <option value="Prescriptiva">Prescriptiva</option>
+        <option value="Tratamiento complementario">Tratamiento complementario</option>
+        <option value="Comercial">Comercial</option>
+        <option value="Productos bonificados">Productos bonificados</option>
+        <option value="Licitacion">Licitaci&#243;n</option>
+      </select>
+    </div>
+    <div class="field"><label>% Descuento general</label><input type="number" id="f-desc" placeholder="0" min="0" max="100" inputmode="numeric"></div>
+    <div class="slbl">Observaciones</div>
+    <div class="field"><textarea id="f-obs" rows="3" placeholder="Ej: troquel anulado con cinta c&#225;scara de huevo..." style="resize:none"></textarea></div>
+  </div>
+  <div class="sfoot">
+    <button class="btn bp" id="btn-s1">Siguiente: productos &#8594;</button>
+  </div>
+</div>
+
+<!-- SC2: PRODUCTOS -->
+<div class="screen" id="sc2">
+  <div id="vb2" class="vbar" style="display:none">Vendedor: <span id="vn2"></span><button class="vedit" id="vedit2">cambiar</button></div>
+  <div class="sbody">
+    <div class="srchwrap">
+      <div class="srchbox">
+        <span class="srchicon">&#128269;</span>
+        <input type="search" id="srch" placeholder="Buscar por nombre o c&#243;digo...">
+      </div>
+      <div class="srchcnt" id="srchcnt"></div>
+    </div>
+    <div id="catlist"></div>
+  </div>
+  <div class="totsbar">
+    <div class="tbox"><div class="tlbl">Productos</div><div class="tval" id="tbp">0</div><div class="tsub">l&#237;neas</div></div>
+    <div class="tbox"><div class="tlbl">Total venta</div><div class="tval" id="tbv">0</div><div class="tsub">unidades</div></div>
+    <div class="tbox"><div class="tlbl">Total bonif.</div><div class="tval" id="tbb">0</div><div class="tsub">unidades</div></div>
+  </div>
+  <div class="sfoot" style="border-top:none">
+    <button class="btn bp" id="btn-rev">Revisar pedido &#8594;</button>
+    <button class="btn bs" id="btn-s2b">&#8592; Volver</button>
+  </div>
+</div>
+
+<!-- SC3: RESUMEN -->
+<div class="screen" id="sc3">
+  <div id="vb3" class="vbar" style="display:none">Vendedor: <span id="vn3"></span></div>
+  <div class="sbody"><div id="rescontent"></div></div>
+  <div class="sfoot">
+    <div id="nwarn" class="nwarn" style="display:none">&#9888; No hay productos cargados. Volv&#233; y agreg&#225; al menos uno.</div>
+    <button class="btn bp" id="btn-env">Confirmar y enviar</button>
+    <button class="btn bs" id="btn-s3b">&#8592; Volver a productos</button>
+  </div>
+</div>
+
+<!-- SC4: ENVIADO -->
+<div class="screen" id="sc4">
+  <div class="swrap">
+    <div class="sicon">&#9989;</div>
+    <div class="stitle">Pedido enviado</div>
+    <div class="ssub2" id="s4cli"></div>
+    <div class="sdet" id="s4det"></div>
+    <button class="btn bp" style="max-width:240px" id="btn-nuevo">+ Nuevo pedido</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  var CAT = [{"cod": "10232", "droga": "5 XR 500", "presentacion": "500 mg x 50 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "10317", "droga": "PRUXAN", "presentacion": "2 mg x 28 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "10065", "droga": "NALCOTREX", "presentacion": "50 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda"}, {"cod": "10233", "droga": "5 XR 500", "presentacion": "500 mg x 100 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "10315", "droga": "PRUXAN", "presentacion": "2 mg x 7 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "20229", "droga": "PREBIEN", "presentacion": "75 mg x 28 C\u00e1ps.", "seccion": "Neurolog\u00eda"}, {"cod": "10352", "droga": "5 XR 1000", "presentacion": "1000 mg x 30 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "10203", "droga": "Q-PROST", "presentacion": "5 mg x 30 Comp.", "seccion": "Urolog\u00eda"}, {"cod": "10121", "droga": "PREBIEN", "presentacion": "75 mg Div. x 30 Comp.", "seccion": "Neurolog\u00eda"}, {"cod": "10353", "droga": "5 XR 1000", "presentacion": "1000 mg x 60 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "20231", "droga": "PREBIEN", "presentacion": "150 mg x 28 C\u00e1ps.", "seccion": "Neurolog\u00eda"}, {"cod": "10216", "droga": "Q-PROST ALOPEX", "presentacion": "1 mg x 30 Comp.", "seccion": "Urolog\u00eda"}, {"cod": "10125", "droga": "PREBIEN", "presentacion": "150 mg Div. x 30 Comp.", "seccion": "Neurolog\u00eda"}, {"cod": "10167", "droga": "AGRELID", "presentacion": "0,5 mg. x 100 C\u00e1ps.", "seccion": "Hematolog\u00eda"}, {"cod": "10168", "droga": "AGRELID", "presentacion": "1 mg. x 100 C\u00e1ps.", "seccion": "Hematolog\u00eda"}, {"cod": "10386", "droga": "QUESTRAN", "presentacion": "4 g x 30 SOBRES", "seccion": "Cardiolog\u00eda"}, {"cod": "20110", "droga": "VISPER", "presentacion": "200 mg x 15 Comp.", "seccion": "Neurolog\u00eda"}, {"cod": "20111", "droga": "VISPER", "presentacion": "200 mg x 30 Comp.", "seccion": "Neurolog\u00eda"}, {"cod": "SP10107", "droga": "ALLOPURINOL HOUDE", "presentacion": "300 mg x 30 Comp.", "seccion": "Reumatolog\u00eda"}, {"cod": "P9014", "droga": "RIBAVIRINA ARISTON", "presentacion": "CAPSULAS x 50", "seccion": "Antivirales"}, {"cod": "10001", "droga": "ALZATEN", "presentacion": "Gotas x 20 C.C.", "seccion": "ORL"}, {"cod": "10267", "droga": "RIFAXTRIL", "presentacion": "200 mg x 20 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "10181", "droga": "ALZATEN", "presentacion": "DISGRELENT x 20 Grs.", "seccion": "ORL"}, {"cod": "10268", "droga": "RIFAXTRIL", "presentacion": "200 mg x 40 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "20126", "droga": "CUAIT D", "presentacion": "x 40 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "20168", "droga": "ARAPENTIN", "presentacion": "100 mg x 30 C\u00e1ps.", "seccion": "Neurolog\u00eda"}, {"cod": "10287", "droga": "RIFAXTRIL", "presentacion": "550 mg x 10 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "20169", "droga": "ARAPENTIN", "presentacion": "300 mg x 30 C\u00e1ps.", "seccion": "Neurolog\u00eda"}, {"cod": "10288", "droga": "RIFAXTRIL", "presentacion": "550 mg x 30 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "20129", "droga": "CUAIT TRIFLUOPERAZINA", "presentacion": "5 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "20170", "droga": "ARAPENTIN", "presentacion": "600 mg x 30 Comp.", "seccion": "Neurolog\u00eda"}, {"cod": "10289", "droga": "RIFAXTRIL", "presentacion": "550 mg x 60 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "20127", "droga": "CUAIT TRIFLUOPERAZINA", "presentacion": "10 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "10326", "droga": "ARIGASTRIL", "presentacion": "30 mg x 15 caps", "seccion": "Gastroenterolog\u00eda"}, {"cod": "SP10127", "droga": "SILIDRAL 70", "presentacion": "Comprimidos x 4", "seccion": "Osteoporosis"}, {"cod": "20160", "droga": "EX3", "presentacion": "10 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda"}, {"cod": "10327", "droga": "ARIGASTRIL", "presentacion": "30 mg x 30 caps", "seccion": "Gastroenterolog\u00eda"}, {"cod": "20162", "droga": "EX3", "presentacion": "20 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda"}, {"cod": "10331", "droga": "ARIGASTRIL", "presentacion": "60 mg x 15 caps", "seccion": "Gastroenterolog\u00eda"}, {"cod": "SP10128", "droga": "SILIDRAL UNO", "presentacion": "Comprimidos x 1", "seccion": "Osteoporosis"}, {"cod": "10332", "droga": "ARIGASTRIL", "presentacion": "60 mg x 30 caps", "seccion": "Gastroenterolog\u00eda"}, {"cod": "20146", "droga": "QUILAREX", "presentacion": "75 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda"}, {"cod": "10272", "droga": "SOLUGASTRIL", "presentacion": "20 mg x 28 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "10098", "droga": "ARIFLENAC", "presentacion": "500 mg + 50 mg x 10 comp", "seccion": "Analgesia"}, {"cod": "10273", "droga": "SOLUGASTRIL", "presentacion": "40 mg x 28 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "20153", "droga": "QUILAREX XR", "presentacion": "75 mg x 28 Comp.", "seccion": "Psiquiatr\u00eda"}, {"cod": "20158", "droga": "QUILAREX XR", "presentacion": "150 mg x 28 Comp.", "seccion": "Psiquiatr\u00eda"}, {"cod": "10251", "droga": "AROTRAN", "presentacion": "500 mg x 10 Comp.", "seccion": "Hematolog\u00eda"}, {"cod": "10187", "droga": "AROTRAN", "presentacion": "500 mg x 30 Comp.", "seccion": "Hematolog\u00eda"}, {"cod": "SP10129", "droga": "STEROGYL", "presentacion": "Fco x 2 ml", "seccion": "Vitaminas"}, {"cod": "20321", "droga": "QUEPAX", "presentacion": "25MG COMP. REC. X 30", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "SP10145", "droga": "STEROGYL", "presentacion": "STEROGYL x 2 ml  Fco x 3", "seccion": "Vitaminas"}, {"cod": "20241", "droga": "QUEPAX", "presentacion": "25MG COMP. REC. X 60", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "10200", "droga": "AROTRAN", "presentacion": "500 mg x 5 ml x 5 Amp.", "seccion": "Hematolog\u00eda"}, {"cod": "20323", "droga": "QUEPAX", "presentacion": "100MG COMP. REC. X 30", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "50560", "droga": "AROTRAN", "presentacion": "500 mg x 5 ml x 50 Amp.", "seccion": "Hematolog\u00eda"}, {"cod": "20242", "droga": "QUEPAX", "presentacion": "100MG COMP. REC. X 60", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "10198", "droga": "AROTRAN", "presentacion": "1000 mg x 10 ml x 5 Amp.", "seccion": "Hematolog\u00eda"}, {"cod": "SP10130", "droga": "STEROGYL", "presentacion": "Fco x 10 ml", "seccion": "Vitaminas"}, {"cod": "20325", "droga": "QUEPAX", "presentacion": "200MG COMP. REC. X 30", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "20243", "droga": "QUEPAX", "presentacion": "200MG COMP. REC. X 60", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "10182", "droga": "AUDECOL", "presentacion": "150 mg x 20 Comp.", "seccion": "Hepatolog\u00eda"}, {"cod": "SP10106", "droga": "STEROGYL", "presentacion": "Fco x 4 ml", "seccion": "Vitaminas"}, {"cod": "10189", "droga": "AUDECOL", "presentacion": "300 mg x 20 Comp.", "seccion": "Hepatolog\u00eda"}, {"cod": "20305", "droga": "TREGINAX", "presentacion": "25 mg x 30 Comp.", "seccion": "Neurolog\u00eda"}, {"cod": "10184", "droga": "AUDECOL", "presentacion": "300 mg x 50 Comp.", "seccion": "Hepatolog\u00eda"}, {"cod": "SD10001", "droga": "TOTALFER", "presentacion": "C\u00e1psulas x 30", "seccion": "Hematolog\u00eda"}, {"cod": "20306", "droga": "TREGINAX", "presentacion": "50 mg x 30 Comp.", "seccion": "Neurolog\u00eda"}, {"cod": "20307", "droga": "TREGINAX", "presentacion": "100 mg x 30 Comp.", "seccion": "Neurolog\u00eda"}, {"cod": "10366", "droga": "BRIBIEN", "presentacion": "50 mg x 28 comp.", "seccion": "Neurolog\u00eda"}, {"cod": "SP10135", "droga": "URSOMAX", "presentacion": "Comprimidos x 30", "seccion": "Hepatolog\u00eda"}, {"cod": "20308", "droga": "TREGINAX", "presentacion": "200 mg x 30 Comp.", "seccion": "Neurolog\u00eda"}, {"cod": "10370", "droga": "BRIBIEN", "presentacion": "100 mg x 28 comp.", "seccion": "Neurolog\u00eda"}, {"cod": "SP10136", "droga": "URSOMAX", "presentacion": "Comprimidos x 60", "seccion": "Hepatolog\u00eda"}, {"cod": "20148", "droga": "TETRAZIC", "presentacion": "30 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda"}, {"cod": "10235", "droga": "BROMOTIL", "presentacion": "40 mg x 20 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "10109", "droga": "VENOSTASIN", "presentacion": "x 60 Comp. Rec,", "seccion": "Circulaci\u00f3n"}, {"cod": "10236", "droga": "BROMOTIL", "presentacion": "40 mg x 60 Comp.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "10102", "droga": "VENOSTASIN", "presentacion": "GEL Pomo x 50 grs.", "seccion": "Circulaci\u00f3n"}, {"cod": "20301", "droga": "VORPIX", "presentacion": "10MG COMP. REC. X 28", "seccion": "Psiquiatr\u00eda"}, {"cod": "20300", "droga": "VORPIX", "presentacion": "10MG COMP. REC. X 14", "seccion": "Psiquiatr\u00eda"}, {"cod": "10261", "droga": "BUTIMERIN", "presentacion": "POLVO X 20 GRS.", "seccion": "Gastroenterolog\u00eda"}, {"cod": "20303", "droga": "VORPIX", "presentacion": "20MG COMP. REC. X 28", "seccion": "Psiquiatr\u00eda"}, {"cod": "SP20103", "droga": "SUMENAN", "presentacion": "10 mg x  30 Comp.", "seccion": "Psiquiatr\u00eda"}, {"cod": "10028", "droga": "CIRCUVIT", "presentacion": "2 mg x 50 Comp.", "seccion": "Hematolog\u00eda"}, {"cod": "20115", "droga": "ARISDAR", "presentacion": "5 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "10027", "droga": "CIRCUVIT", "presentacion": "5 mg x 20 Comp.", "seccion": "Hematolog\u00eda"}, {"cod": "10097", "droga": "ARISDAR", "presentacion": "10 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "10029", "droga": "CIRCUVIT", "presentacion": "5 mg x 50 Comp.", "seccion": "Hematolog\u00eda"}, {"cod": "20116", "droga": "ARISDAR", "presentacion": "15 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "P9002", "droga": "DEXATOTAL", "presentacion": "4 mg COMPRIMIDOS x 10", "seccion": "Corticoides"}, {"cod": "20113", "droga": "BACLOX", "presentacion": "10 mg x 60 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "P9007", "droga": "IURONICO BIOTIC", "presentacion": "CREMA x 30 g", "seccion": "Dermatolog\u00eda"}, {"cod": "P9003", "droga": "DEXATOTAL", "presentacion": "4 mg COMPRIMIDOS x 20", "seccion": "Corticoides"}, {"cod": "20114", "droga": "BACLOX", "presentacion": "25 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "P9004", "droga": "DEXATOTAL", "presentacion": "8 mg COMPRIMIDOS x 10", "seccion": "Corticoides"}, {"cod": "P9008", "droga": "IURONICODERM", "presentacion": "CREMA x 30 g", "seccion": "Dermatolog\u00eda"}, {"cod": "P9005", "droga": "DEXATOTAL", "presentacion": "8 mg COMPRIMIDOS x 20", "seccion": "Corticoides"}, {"cod": "10025", "droga": "CEGLUTION 300", "presentacion": "300 mg x 20 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "P9009", "droga": "IURONICODERM", "presentacion": "CREMA x 90 g", "seccion": "Dermatolog\u00eda"}, {"cod": "P9006", "droga": "DEXATOTAL", "presentacion": "8 mg COMPRIMIDOS x 30", "seccion": "Corticoides"}, {"cod": "10024", "droga": "CEGLUTION 300", "presentacion": "300 mg x 50 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "10037", "droga": "CEGLUTION 300", "presentacion": "300 mg x 90 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "10175", "droga": "DISULFIX", "presentacion": "500 mg  x 30 Comp.", "seccion": "Psiquiatr\u00eda"}, {"cod": "10021", "droga": "CEGLUTION XR 450", "presentacion": "450 mg L.P. x 30 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "10320", "droga": "LACOMAX", "presentacion": "50 mg x 30 Comp.", "seccion": "Neurolog\u00eda"}, {"cod": "10022", "droga": "CEGLUTION XR 450", "presentacion": "450 mg L.P. x 60 Comp.", "seccion": "Psiquiatr\u00eda - Controlada"}, {"cod": "10322", "droga": "LACOMAX", "presentacion": "100 mg x 30 Comp.", "seccion": "Neurolog\u00eda"}, {"cod": "20217", "droga": "ANA-Q", "presentacion": "50 mg x 30 Comp.", "seccion": "OTX - Troquel Limpio"}, {"cod": "10324", "droga": "LACOMAX", "presentacion": "200 mg x 30 Comp.", "seccion": "Neurolog\u00eda"}, {"cod": "20179", "droga": "DUERIX", "presentacion": "30 mg x 14 C\u00e1ps.", "seccion": "Psiquiatr\u00eda"}, {"cod": "20180", "droga": "DUERIX", "presentacion": "30 mg x 28 C\u00e1ps.", "seccion": "Psiquiatr\u00eda"}, {"cod": "20196", "droga": "OPTIPAR", "presentacion": "20 mg x 30 Comp.", "seccion": "OTX - Troquel Limpio"}, {"cod": "SP10123", "droga": "LEFLUNOMIDA SC", "presentacion": "Comprimidos x  30", "seccion": "Reumatolog\u00eda"}, {"cod": "20182", "droga": "DUERIX", "presentacion": "60 mg x 28 C\u00e1ps.", "seccion": "Psiquiatr\u00eda"}, {"cod": "10226", "droga": "UROPROST-Q", "presentacion": "0,4 mg x 30 C\u00e1ps.", "seccion": "OTX - Troquel Limpio"}, {"cod": "10050", "droga": "NEOTRIL", "presentacion": "Comprimidos x  16", "seccion": "Antibi\u00f3ticos"}, {"cod": "20259", "droga": "LURAFIX", "presentacion": "40 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda"}, {"cod": "10227", "droga": "UROPROST-Q", "presentacion": "0,4 mg x 60 C\u00e1ps.", "seccion": "OTX - Troquel Limpio"}, {"cod": "20260", "droga": "LURAFIX", "presentacion": "80 mg x 30 Comp.", "seccion": "Psiquiatr\u00eda"}, {"cod": "SP10125", "droga": "OSTATAC", "presentacion": "Sobres x 30", "seccion": "Reumatolog\u00eda"}];
+  var MFAC = 'pedidos@laboratorio-ariston.com.ar';
+  var st = {
+    vend: localStorage.getItem('vendedor') || '',
+    num: (parseInt(localStorage.getItem('pedidoNum') || '0') + 1),
+    items: {},
+    cliIdx: -1
+  };
+
+  // -- INIT ------------------------------------------------
+  function init() {
+    bindEvents();
+    buildCat('');
+    if (st.vend) { goStep(1); } else { showSc('sc0'); setBar(0, ''); }
+  }
+
+  function bindEvents() {
+    document.getElementById('btn-onboard').addEventListener('click', saveVendedor);
+    document.getElementById('btn-s1').addEventListener('click', function() { goStep(2); });
+    document.getElementById('btn-rev').addEventListener('click', function() { goStep(3); });
+    document.getElementById('btn-s2b').addEventListener('click', function() { goStep(1); });
+    document.getElementById('btn-env').addEventListener('click', enviar);
+    document.getElementById('btn-s3b').addEventListener('click', function() { goStep(2); });
+    document.getElementById('btn-nuevo').addEventListener('click', nuevoPedido);
+    document.getElementById('vedit1').addEventListener('click', editVendedor);
+    document.getElementById('vedit2').addEventListener('click', editVendedor);
+    document.getElementById('cli-inp').addEventListener('input', function() { buscarCli(this.value); });
+    document.getElementById('cli-inp').addEventListener('focus', function() { buscarCli(this.value); });
+    document.getElementById('srch').addEventListener('input', function() { buildCat(this.value); });
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#cli-inp') && !e.target.closest('#cli-dd')) {
+        document.getElementById('cli-dd').style.display = 'none';
+      }
+    });
+    // Event delegation para catalogo
+    document.getElementById('catlist').addEventListener('change', function(e) {
+      var inp = e.target;
+      if (!inp.dataset.cod) return;
+      var val = inp.type === 'checkbox' ? inp.checked : inp.value;
+      setIt(inp.dataset.cod, inp.dataset.field, val);
+    });
+  }
+
+  // -- SCREENS ---------------------------------------------
+  function showSc(id) {
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function setBar(pct, lbl) {
+    document.getElementById('pfill').style.width = pct + '%';
+    document.getElementById('tstep').textContent = lbl;
+  }
+
+  function updVBars() {
+    [1,2,3].forEach(function(n) {
+      var b = document.getElementById('vb' + n);
+      var nm = document.getElementById('vn' + n);
+      if (b && nm) { b.style.display = st.vend ? 'flex' : 'none'; nm.textContent = st.vend; }
+    });
+  }
+
+  function goStep(n) {
+    if (n === 1) { showSc('sc1'); setBar(25, '1 / 3'); updVBars(); buscarCli(document.getElementById('cli-inp').value); }
+    else if (n === 2) { if (!valCli()) return; showSc('sc2'); setBar(55, '2 / 3'); updVBars(); buildCat(document.getElementById('srch').value); }
+    else if (n === 3) { showSc('sc3'); setBar(85, '3 / 3'); updVBars(); buildRes(); }
+    else if (n === 4) { showSc('sc4'); setBar(100, ''); }
+  }
+
+  // -- VENDEDOR --------------------------------------------
+  function saveVendedor() {
+    var v = document.getElementById('inp-vend').value.trim();
+    if (!v) { alert('Por favor ingresa tu nombre.'); return; }
+    st.vend = v; localStorage.setItem('vendedor', v); goStep(1);
+  }
+
+  function editVendedor() {
+    var n = prompt('Cambiar nombre:', st.vend);
+    if (n && n.trim()) { st.vend = n.trim(); localStorage.setItem('vendedor', st.vend); updVBars(); }
+  }
+
+  // -- MAESTRO CLIENTES ------------------------------------
+  function getClis() { try { return JSON.parse(localStorage.getItem('maestro') || '[]'); } catch(e) { return []; } }
+  function saveClis(l) { localStorage.setItem('maestro', JSON.stringify(l)); }
+
+  function guardarCli(nombre, cuit, nro) {
+    if (!nombre) return;
+    var l = getClis();
+    var idx = -1;
+    for (var i = 0; i < l.length; i++) { if (l[i].n.toLowerCase() === nombre.toLowerCase()) { idx = i; break; } }
+    var e = { n: nombre.trim(), c: (cuit || '').trim(), r: (nro || '').trim() };
+    if (idx >= 0) l[idx] = e; else l.unshift(e);
+    saveClis(l.slice(0, 200));
+  }
+
+  function buscarCli(q) {
+    var all = getClis();
+    var t = (q || '').toLowerCase().trim();
+    var f = t ? all.filter(function(c) { return c.n.toLowerCase().indexOf(t) >= 0 || c.c.indexOf(t) >= 0 || c.r.indexOf(t) >= 0; }) : all;
+    renderDD(f, q || '');
+  }
+
+  function renderDD(list, q) {
+    var dd = document.getElementById('cli-dd');
+    if (!list.length && !q) { dd.style.display = 'none'; return; }
+    var h = '';
+    list.slice(0, 8).forEach(function(c, i) {
+      var ini = c.n.split(' ').slice(0,2).map(function(w) { return (w[0] || '').toUpperCase(); }).join('');
+      h += '<div class="citem" data-idx="' + i + '">' +
+           '<div class="cavatar">' + ini + '</div>' +
+           '<div class="cinfo"><div class="cnombre">' + x(c.n) + '</div><div class="csub">CUIT: ' + x(c.c||'-') + ' &middot; N&#186; ' + x(c.r||'-') + '</div></div>' +
+           '<button class="cdel" data-del="' + x(c.n) + '">&#128465;</button>' +
+           '</div>';
+    });
+    if (!list.length && q) h += '<div class="cempty">No se encontro "' + x(q) + '"</div>';
+    h += '<div class="cnuevo" data-nuevo="1">&#10133; Usar "' + x(q || 'nuevo cliente') + '" sin guardar aun</div>';
+    dd.innerHTML = h;
+    dd.style.display = 'block';
+
+    // Bind clicks dentro del dropdown
+    dd.querySelectorAll('.citem').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var idx = parseInt(this.dataset.idx);
+        var all2 = getClis();
+        var q2 = document.getElementById('cli-inp').value.trim();
+        var t2 = q2.toLowerCase();
+        var filtered = t2 ? all2.filter(function(c) { return c.n.toLowerCase().indexOf(t2) >= 0 || c.c.indexOf(t2) >= 0 || c.r.indexOf(t2) >= 0; }) : all2;
+        if (filtered[idx]) selCli(filtered[idx]);
+      });
+    });
+    dd.querySelectorAll('.cdel').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var nombre = this.dataset.del;
+        if (confirm('Eliminar "' + nombre + '" del maestro?')) {
+          saveClis(getClis().filter(function(c) { return c.n !== nombre; }));
+          buscarCli(document.getElementById('cli-inp').value);
+        }
+      });
+    });
+    var btnNuevo = dd.querySelector('.cnuevo');
+    if (btnNuevo) {
+      btnNuevo.addEventListener('click', function() {
+        var q3 = document.getElementById('cli-inp').value.trim();
+        document.getElementById('f-cli').value = q3;
+        document.getElementById('cli-dd').style.display = 'none';
+        document.getElementById('cli-sel').style.display = 'none';
+        document.getElementById('f-cuit').focus();
+      });
+    }
+  }
+
+  function selCli(c) {
+    document.getElementById('f-cli').value = c.n;
+    document.getElementById('f-cuit').value = c.c || '';
+    document.getElementById('f-nro').value = c.r || '';
+    document.getElementById('cli-inp').value = c.n;
+    document.getElementById('cli-dd').style.display = 'none';
+    var ini = c.n.split(' ').slice(0,2).map(function(w) { return (w[0] || '').toUpperCase(); }).join('');
+    document.getElementById('cli-sel').innerHTML =
+      '<div class="csel">' +
+      '<div class="cavatar">' + ini + '</div>' +
+      '<div class="csel-info"><div class="csel-n">' + x(c.n) + '</div><div class="csel-s">CUIT: ' + x(c.c||'-') + ' &middot; N&#186; ' + x(c.r||'-') + '</div></div>' +
+      '<button class="csel-ch" id="btn-camb">cambiar</button></div>';
+    document.getElementById('cli-sel').style.display = 'block';
+    document.getElementById('btn-camb').addEventListener('click', function() {
+      document.getElementById('cli-sel').style.display = 'none';
+      document.getElementById('cli-inp').value = '';
+      document.getElementById('f-cli').value = '';
+      document.getElementById('f-cuit').value = '';
+      document.getElementById('f-nro').value = '';
+      document.getElementById('cli-inp').focus();
+      buscarCli('');
+    });
+  }
+
+  function valCli() {
+    if (!document.getElementById('f-cli').value.trim()) {
+      alert('Por favor ingresa el nombre del cliente.');
+      return false;
+    }
+    return true;
+  }
+
+  // -- CATALOGO --------------------------------------------
+  function buildCat(q) {
+    var ql = (q || '').toLowerCase().trim();
+    var f = CAT.filter(function(p) {
+      if (!ql) return true;
+      return p.cod.toLowerCase().indexOf(ql) >= 0 || p.droga.toLowerCase().indexOf(ql) >= 0 ||
+             p.presentacion.toLowerCase().indexOf(ql) >= 0 || p.seccion.toLowerCase().indexOf(ql) >= 0;
+    });
+    var bySec = {};
+    f.forEach(function(p) {
+      if (!bySec[p.seccion]) bySec[p.seccion] = {};
+      if (!bySec[p.seccion][p.droga]) bySec[p.seccion][p.droga] = [];
+      bySec[p.seccion][p.droga].push(p);
+    });
+    var h = '';
+    if (!f.length) {
+      h = '<div style="text-align:center;padding:32px 20px;color:var(--t3);font-size:14px">No se encontraron productos.</div>';
+    } else {
+      Object.keys(bySec).sort().forEach(function(sec) {
+        h += '<div class="slbl">' + x(sec) + '</div>';
+        Object.keys(bySec[sec]).sort().forEach(function(drug) {
+          if (drug) h += '<div class="dhdr">' + x(drug) + '</div>';
+          bySec[sec][drug].forEach(function(p) {
+            var it = st.items[p.cod] || {};
+            var hasV = it.vta || it.bon || it.desc || it.troq || it.troqA;
+            // Usar data-* attributes para evitar problemas de escapado en onclick
+            h += '<div class="pcard' + (hasV ? ' on' : '') + '" id="c-' + p.cod + '">' +
+              '<div class="pname">' + x(p.presentacion) + '</div>' +
+              '<div class="pcod">' + x(p.cod) + '</div>' +
+              '<div class="pfields">' +
+              pf(p.cod, 'vta', 'Venta', it.vta, 'number') +
+              pf(p.cod, 'bon', 'Bonif.', it.bon, 'number') +
+              pf(p.cod, 'desc', 'Desc %', it.desc, 'number') +
+              pf(p.cod, 'troq', 'Troquel', it.troq, 'text') +
+              '</div>' +
+              '<div class="trow">' +
+              '<input type="checkbox" data-cod="' + p.cod + '" data-field="troqA"' + (it.troqA ? ' checked' : '') + ' id="ck-' + p.cod + '">' +
+              '<label for="ck-' + p.cod + '">Troquel anulado</label>' +
+              '</div>' +
+              '</div>';
+          });
+        });
+      });
+    }
+    document.getElementById('catlist').innerHTML = h;
+    updBtn();
+    document.getElementById('srchcnt').textContent = ql ? (f.length + ' producto' + (f.length !== 1 ? 's' : '') + ' encontrado' + (f.length !== 1 ? 's' : '')) : '';
+  }
+
+  function pf(cod, field, lbl, val, type) {
+    var nm = type === 'number' ? ' inputmode="numeric" min="0"' + (field === 'desc' ? ' max="100"' : '') : '';
+    var ph = field === 'desc' ? '-' : (type === 'number' ? '0' : '-');
+    return '<div class="pf"><label>' + lbl + '</label>' +
+      '<input type="' + type + '"' + nm + ' placeholder="' + ph + '" value="' + x(val || '') + '"' +
+      ' data-cod="' + cod + '" data-field="' + field + '" onfocus="this.select()">' +
+      '</div>';
+  }
+
+  function setIt(cod, field, val) {
+    if (!st.items[cod]) st.items[cod] = {};
+    st.items[cod][field] = val;
+    var card = document.getElementById('c-' + cod);
+    if (card) {
+      var it = st.items[cod];
+      card.classList.toggle('on', !!(it.vta || it.bon || it.desc || it.troq || it.troqA));
+    }
+    updTots();
+    updBtn();
+  }
+
+  function updBtn() {
+    var total = 0;
+    Object.keys(st.items).forEach(function(k) { if (st.items[k].vta || st.items[k].bon) total++; });
+    var btn = document.getElementById('btn-rev');
+    if (btn) btn.textContent = total > 0 ? 'Revisar pedido (' + total + ' producto' + (total !== 1 ? 's' : '') + ') ->' : 'Revisar pedido ->';
+  }
+
+  function updTots() {
+    var p = 0, v = 0, b = 0;
+    Object.keys(st.items).forEach(function(k) {
+      var it = st.items[k];
+      var vv = parseInt(it.vta) || 0, bb = parseInt(it.bon) || 0;
+      if (vv || bb) { p++; v += vv; b += bb; }
+    });
+    function sv(id, val) { var el = document.getElementById(id); if (!el) return; el.textContent = val; el.className = 'tval' + (val > 0 ? ' on' : ''); }
+    sv('tbp', p); sv('tbv', v); sv('tbb', b);
+  }
+
+  // -- RESUMEN ---------------------------------------------
+  function buildRes() {
+    var ivs = CAT.filter(function(p) { var it = st.items[p.cod]; return it && (it.vta || it.bon); });
+    var warn = document.getElementById('nwarn');
+    var btnE = document.getElementById('btn-env');
+    if (!ivs.length) { warn.style.display = 'block'; btnE.disabled = true; btnE.style.opacity = '.5'; }
+    else { warn.style.display = 'none'; btnE.disabled = false; btnE.style.opacity = '1'; }
+
+    var fecha = new Date().toLocaleDateString('es-AR');
+    var nro = String(st.num).padStart(4, '0');
+    var cli = document.getElementById('f-cli').value.trim();
+    var obs = document.getElementById('f-obs').value.trim();
+    var tV = 0, tB = 0;
+    ivs.forEach(function(p) { tV += parseInt(st.items[p.cod].vta) || 0; tB += parseInt(st.items[p.cod].bon) || 0; });
+
+    var h = '<div class="rhdr">' +
+      rr('N&#186; de pedido', '#' + nro) + rr('Fecha', fecha) + rr('Vendedor', x(st.vend)) +
+      rr('Cliente', x(cli)) +
+      rr('CUIT', x(document.getElementById('f-cuit').value || '-')) +
+      rr('N&#186; cliente', x(document.getElementById('f-nro').value || '-')) +
+      rr('Entrega', x((document.getElementById('f-dom').value || '-') + ', ' + (document.getElementById('f-loc').value || '') + ' ' + (document.getElementById('f-prov').value || ''))) +
+      '<div class="rrow"><span class="rlbl">Condiciones</span><span class="rval">' +
+        '<span class="tag">' + x(document.getElementById('f-pago').value) + '</span>' +
+        '<span class="tag">' + x(document.getElementById('f-vta').value) + '</span>' +
+        (document.getElementById('f-desc').value ? '<span class="tag">Desc. ' + x(document.getElementById('f-desc').value) + '%</span>' : '') +
+      '</span></div>' +
+      (obs ? rr('Observaciones', x(obs)) : '') +
+      '</div>';
+
+    h += '<div class="totblk"><div class="totblk-t">Totales del pedido</div>' +
+      '<div class="totrow"><span class="totlbl">L&#237;neas de producto</span><span class="totval">' + ivs.length + '</span></div>' +
+      '<div class="totrow"><span class="totlbl">Total unidades venta</span><span class="totval">' + tV + '</span></div>' +
+      '<div class="totrow"><span class="totlbl">Total unidades bonificadas</span><span class="totval">' + tB + '</span></div>' +
+      '</div>';
+
+    if (ivs.length) {
+      var bySec = {};
+      ivs.forEach(function(p) { if (!bySec[p.seccion]) bySec[p.seccion] = []; bySec[p.seccion].push(p); });
+      h += '<div class="scard">';
+      Object.keys(bySec).sort().forEach(function(sec) {
+        h += '<div class="ssec">' + x(sec) + '</div>';
+        bySec[sec].forEach(function(p) {
+          var it = st.items[p.cod];
+          var ex = [];
+          if (it.bon) ex.push('bon. ' + it.bon);
+          if (it.desc) ex.push('desc. ' + it.desc + '%');
+          if (it.troqA) ex.push('troquel anulado');
+          h += '<div class="srow"><div class="sleft"><div class="sname"><span class="pcod" style="margin-right:5px">' + x(p.cod) + '</span>' + x(p.droga) + ' - ' + x(p.presentacion) + '</div>' + (ex.length ? '<div class="sext">' + ex.join(' &middot; ') + '</div>' : '') + '</div><div class="sright"><div class="sqty">' + (it.vta || '') + ' u.</div></div></div>';
+        });
+      });
+      h += '</div>';
+
+      h += '<div class="mprev"><div class="mlbl">Vista previa del mail a facturaci&#243;n</div>' +
+        '<div class="mline"><strong>Para:</strong> ' + MFAC + '</div>' +
+        '<div class="mline"><strong>Asunto:</strong> Pedido #' + nro + ' &middot; ' + x(cli) + ' &middot; ' + x(st.vend) + ' &middot; ' + fecha + '</div>' +
+        '<table class="mtbl"><thead><tr><th class="mcod">C&#243;d.</th><th>Producto</th><th class="mnum">Vta</th><th class="mnum">Bon</th><th class="mnum">Desc%</th></tr></thead><tbody>';
+      ivs.forEach(function(p) {
+        var it = st.items[p.cod];
+        h += '<tr><td class="mcod">' + x(p.cod) + '</td><td>' + x(p.droga + ' ' + p.presentacion) + '</td><td class="mnum">' + (it.vta || '') + '</td><td class="mnum">' + (it.bon || '') + '</td><td class="mnum">' + (it.desc || '') + '</td></tr>';
+      });
+      h += '</tbody></table></div>';
+    }
+    document.getElementById('rescontent').innerHTML = h;
+  }
+
+  function rr(lbl, val) {
+    return '<div class="rrow"><span class="rlbl">' + lbl + '</span><span class="rval">' + val + '</span></div>';
+  }
+
+  // -- ENVIO -----------------------------------------------
+  function enviar() {
+    var ivs = CAT.filter(function(p) { var it = st.items[p.cod]; return it && (it.vta || it.bon); });
+    if (!ivs.length) return;
+    var fecha = new Date().toLocaleDateString('es-AR');
+    var nro = String(st.num).padStart(4, '0');
+    var cli   = document.getElementById('f-cli').value.trim();
+    var cuit  = document.getElementById('f-cuit').value.trim();
+    var nroC  = document.getElementById('f-nro').value.trim();
+    var dom   = document.getElementById('f-dom').value.trim();
+    var loc   = document.getElementById('f-loc').value.trim();
+    var prov  = document.getElementById('f-prov').value.trim();
+    var mail  = document.getElementById('f-mail').value.trim();
+    var pago  = document.getElementById('f-pago').value;
+    var vta   = document.getElementById('f-vta').value;
+    var desc  = document.getElementById('f-desc').value;
+    var obs   = document.getElementById('f-obs').value.trim();
+    var tV = 0, tB = 0;
+    ivs.forEach(function(p) { tV += parseInt(st.items[p.cod].vta) || 0; tB += parseInt(st.items[p.cod].bon) || 0; });
+    guardarCli(cli, cuit, nroC);
+    var tabla = '';
+    ivs.forEach(function(p) {
+      var it = st.items[p.cod];
+      tabla += p.cod + ' | ' + p.droga + ' ' + p.presentacion + ' | Vta: ' + (it.vta || '') + ' | Bon: ' + (it.bon || '') + ' | Desc: ' + (it.desc || '') + '%' + (it.troqA ? ' | TROQ.ANULADO' : '') + '\n';
+    });
+    var body = 'NOTA DE PEDIDO #' + nro + '\nFecha: ' + fecha + '\nVendedor: ' + st.vend +
+      '\n\nCLIENTE: ' + cli + '\nCUIT: ' + cuit + '\nNro Cliente: ' + (nroC || '-') +
+      '\nEntrega: ' + dom + ', ' + loc + ', ' + prov + '\nMail cliente: ' + (mail || '-') +
+      '\nCond. pago: ' + pago + '\nCond. venta: ' + vta + '\nDesc. general: ' + (desc || 0) + '%' +
+      (obs ? '\nObservaciones: ' + obs : '') +
+      '\n\nTOTALES: ' + ivs.length + ' lineas | Venta: ' + tV + ' u. | Bonif.: ' + tB + ' u.' +
+      '\n\nPRODUCTOS:\n' + tabla;    var subj = 'Pedido #' + nro + ' - ' + cli + ' - ' + st.vend + ' - ' + fecha;
+    window.location.href = 'mailto:' + MFAC + '?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(body);
+    setTimeout(function() {
+      localStorage.setItem('pedidoNum', st.num);
+      document.getElementById('s4cli').textContent = cli;
+      document.getElementById('s4det').textContent = ivs.length + ' producto' + (ivs.length !== 1 ? 's' : '') + ' - Pedido #' + nro + ' - Mail enviado a facturacion';
+      goStep(4);
+    }, 800);
+  }
+
+  function nuevoPedido() {
+    st.num++;
+    st.items = {};
+    ['f-cli','f-cuit','f-nro','f-dom','f-loc','f-prov','f-mail','f-desc','cli-inp','f-obs','srch'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('f-pago').selectedIndex = 0;
+    document.getElementById('f-vta').selectedIndex = 0;
+    document.getElementById('cli-sel').style.display = 'none';
+    goStep(1);
+  }
+
+  function x(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  window.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
